@@ -1,0 +1,6 @@
+appName = "tiny_talk"
+
+[loggers]
+[loggers.main]
+level = "info"
+output = "log/app.log"
