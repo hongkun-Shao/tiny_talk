@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"tiny_talk/infrastructure/mysql"
 	"tiny_talk/utils"
 	"tiny_talk/utils/config"
 	"tiny_talk/utils/logger"
@@ -21,9 +22,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to init text format logger, err = %v", err)
 	}
-	// logger.Info(123456789)
-	logger.Infof("message is %v", 1234567898)
-	// for {
-	// 	logger.Info("test log Rolling...")
-	// }
+
+	// DBClient 初始化
+	dsn := utils.ParseToDsn(&appConfig.Mysql)
+	logger.Infof("dsn = %v", dsn)
+	err = mysql.NewDBClient(dsn)
+	if err != nil {
+		logger.Fatalf("failed to init mysql, err = %v", err)
+	}
+
 }

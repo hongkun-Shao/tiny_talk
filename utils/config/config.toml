@@ -4,3 +4,9 @@ appName = "tiny_talk"
 [loggers.main]
 level = "info"
 output = "log/app.log"
+
+[mysql]
+dbName = "tiny_talk"
+dbUser = "root"
+dbPassWd = "123456"
+dbAddress = "127.0.0.1:3306"

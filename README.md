@@ -4,8 +4,14 @@ An Instance Message Tool build by golang
 ## Install
 
 ## Modules
-1. Logger
-2. Config
+1. Utils
+    - Logger
+    - Config
+        - Logger
+        - Mysql
+        - Redis
+    - Utils
+2. Infrastructure
     - Mysql
     - Redis
 3. User
