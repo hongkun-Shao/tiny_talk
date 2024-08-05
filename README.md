@@ -14,7 +14,7 @@ An Instance Message Tool build by golang
 2. Infrastructure
     - Mysql
     - Redis
-3. User
+3. UserNetWork
     - Registration(Or as a guest)
     - Login
     - Deletion

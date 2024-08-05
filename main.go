@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"tiny_talk/infrastructure/mysql"
+	"tiny_talk/net/router"
 	"tiny_talk/utils"
 	"tiny_talk/utils/config"
 	"tiny_talk/utils/logger"
@@ -30,5 +31,6 @@ func main() {
 	if err != nil {
 		logger.Fatalf("failed to init mysql, err = %v", err)
 	}
-
+	r := router.Router()
+	r.Run(":8081")
 }

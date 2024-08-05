@@ -1,0 +1,73 @@
+info:
+  contact: {}
+paths:
+  /index:
+    get:
+      consumes:
+      - application/json
+      description: index
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Index
+  /user/CreateUser:
+    post:
+      consumes:
+      - application/json
+      description: create user
+      parameters:
+      - description: 用户名
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        required: true
+        type: string
+      - description: 确认密码
+        in: query
+        name: repassword
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - User
+  /user/Login:
+    post:
+      consumes:
+      - application/json
+      description: login
+      parameters:
+      - description: 账号
+        in: query
+        name: identity
+        required: true
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - User
+swagger: "2.0"

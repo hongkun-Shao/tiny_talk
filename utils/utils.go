@@ -5,6 +5,7 @@ import (
 	"tiny_talk/utils/config"
 
 	"github.com/bwmarrin/snowflake"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func GetConfigPath() string {
@@ -20,4 +21,19 @@ func ParseToDsn(cfg *config.MysqlConfig) string {
 func GenerateSnowflakeID() int64 {
 	node, _ := snowflake.NewNode(1)
 	return node.Generate().Int64()
+}
+
+func HashPassword(password string) (string, error) {
+	// bcrypt.GenerateFromPassword hashes the password with a cost of 10.
+	// The cost parameter can be adjusted for more security but will also increase computation time.
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
+func CheckPassword(hashedPassword string, candidatePassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(candidatePassword))
+	return err == nil
 }

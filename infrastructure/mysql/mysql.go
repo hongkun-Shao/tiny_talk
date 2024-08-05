@@ -1,15 +1,11 @@
 package mysql
 
 import (
-	"log"
-	"os"
-	"time"
 	"tiny_talk/infrastructure/mysql/models"
 	"tiny_talk/utils/logger"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	gormlogger "gorm.io/gorm/logger"
 )
 
 type DBClient struct {
@@ -20,15 +16,15 @@ var MysqlClient *DBClient
 
 func NewDBClient(dsn string) error {
 	dbhandle, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: gormlogger.New(
-			log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-			gormlogger.Config{
-				SlowThreshold:             time.Second,     // 慢 SQL 阈值
-				LogLevel:                  gormlogger.Info, // 日志级别
-				IgnoreRecordNotFoundError: true,            // 忽略记录未找到的错误
-				Colorful:                  true,            // 彩色输出
-			},
-		),
+		// Logger: gormlogger.New(
+		// 	log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		// 	gormlogger.Config{
+		// 		SlowThreshold:             time.Second,     // 慢 SQL 阈值
+		// 		LogLevel:                  gormlogger.Info, // 日志级别
+		// 		IgnoreRecordNotFoundError: true,            // 忽略记录未找到的错误
+		// 		Colorful:                  true,            // 彩色输出
+		// 	},
+		// ),
 	})
 	if err != nil {
 		logger.Errorf("failed to connect database, err = %v", err)

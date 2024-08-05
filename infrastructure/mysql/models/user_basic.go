@@ -9,7 +9,7 @@ import (
 type UserBasic struct {
 	gorm.Model
 	Name          string     `gorm:"type:varchar(20);not null"`
-	Password      string     `gorm:"type:varchar(20);not null"`
+	Password      string     `gorm:"type:varchar(60);not null"`
 	Sex           int8       `gorm:"type:tinyint(4);not null"` // 0:未知, 1:男, 2:女
 	Avatar        string     `gorm:"type:varchar(100);"`       // 头像url
 	Phone         string     `gorm:"type:varchar(11);"`
