@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"encoding/base64"
 	"fmt"
 	"tiny_talk/utils/config"
 
 	"github.com/bwmarrin/snowflake"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/exp/rand"
 )
 
 func GetConfigPath() string {
@@ -36,4 +38,13 @@ func HashPassword(password string) (string, error) {
 func CheckPassword(hashedPassword string, candidatePassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(candidatePassword))
 	return err == nil
+}
+
+func GenerateToken() (string, error) {
+	b := make([]byte, 32) //32 byte rand data
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
 }

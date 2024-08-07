@@ -16,5 +16,6 @@ func Router() *gin.Engine {
 	router.GET("/index", service.GetIndex)
 	router.POST("/user/CreateUser", service.CreateUser)
 	router.POST("/user/Login", service.Login)
+	router.POST("/user/TestToken", service.TestToken)
 	return router
 }

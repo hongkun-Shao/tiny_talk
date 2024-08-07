@@ -10,3 +10,8 @@ dbName = "tiny_talk"
 dbUser = "root"
 dbPassWd = "123456"
 dbAddress = "127.0.0.1:3306"
+
+[redis]
+dbAddress = "127.0.0.1:6379"
+dbPassWd = ""
+db = 0

@@ -110,6 +110,10 @@ func Fatalf(format string, args ...interface{}) {
 	Loggers.loggers[AppName].WithFields(logrus.Fields{}).Fatalf(format, args...)
 }
 
+func Panicf(format string, args ...interface{}) {
+	Loggers.loggers[AppName].WithFields(logrus.Fields{}).Panicf(format, args...)
+}
+
 func Debug(args ...interface{}) {
 	Loggers.loggers[AppName].WithFields(logrus.Fields{}).Debug(args...)
 }
@@ -132,4 +136,8 @@ func Error(args ...interface{}) {
 
 func Fatal(args ...interface{}) {
 	Loggers.loggers[AppName].WithFields(logrus.Fields{}).Fatal(args...)
+}
+
+func Panic(args ...interface{}) {
+	Loggers.loggers[AppName].WithFields(logrus.Fields{}).Panic(args...)
 }

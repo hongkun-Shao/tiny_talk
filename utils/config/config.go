@@ -14,11 +14,17 @@ type MysqlConfig struct {
 	DbAddress string `toml:"dbAddress"`
 }
 
+type RedisConfig struct {
+	DbAddress string `toml:"dbAddress"`
+	Password  string `toml:"dbPassWd"`
+	Db        int `toml:"db"`
+}
+
 type AppConfig struct {
 	AppName string                         `toml:"app_name"`
 	Loggers map[string]logger.LoggerConfig `toml:"loggers"`
 	Mysql   MysqlConfig                    `toml:"mysql"`
-	// Redis RedisParam `toml:"redis"`
+	Redis   RedisConfig                    `toml:"redis"`
 }
 
 func LoadAppStaticConfig(tomlPath string) (*AppConfig, error) {

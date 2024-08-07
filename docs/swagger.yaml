@@ -70,4 +70,23 @@ paths:
             type: string
       tags:
       - User
+  /user/TestToken:
+    post:
+      consumes:
+      - application/json
+      description: test token
+      parameters:
+      - description: 密令
+        in: query
+        name: token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - User
 swagger: "2.0"
