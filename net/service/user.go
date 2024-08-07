@@ -55,7 +55,7 @@ func CreateUser(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message":  "User created successfully, please remember your identity",
 		"username": user.Name,
-		"identity": user.Identity,
+		"identity": fmt.Sprintf("%d", user.Identity),
 	})
 	logger.Infof("User created successfully: %v", user.Identity)
 }
