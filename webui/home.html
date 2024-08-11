@@ -1,0 +1,50 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+</head>
+<body>
+    <div id="chatRecords"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chatRecordsElement = document.getElementById('chatRecords');
+
+            // 获取用户信息
+            const token = JSON.parse(localStorage.getItem('token'));
+
+            // if (!user) {
+            //     // 如果没有用户信息，则跳转回登录页面
+            //     window.location.href = '/login';
+            //     return;
+            // }
+
+            fetch('/api/chat_records', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${user.token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 展示聊天记录
+                    data.chatRecords.forEach(chatRecord => {
+                        const chatElement = document.createElement('div');
+                        chatElement.textContent = `${chatRecord.sender}: ${chatRecord.message}`;
+                        chatRecordsElement.appendChild(chatElement);
+                    });
+                } else {
+                    alert('获取聊天记录失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('获取聊天记录时发生错误。');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -13,9 +13,14 @@ func Router() *gin.Engine {
 	router := gin.Default()
 	docs.SwaggerInfo.BasePath = ""
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	router.GET("/index", service.GetIndex)
+	// 设置页面
+	router.GET("/", service.GetIndex)
+	router.GET("/Register", service.Register)
+	router.GET("/home", service.Home)
+
+	//设置服务
 	router.POST("/user/CreateUser", service.CreateUser)
-	router.POST("/user/Login", service.Login)
+	router.POST("/user/Login", service.UserLogin)
 	router.POST("/user/TestToken", service.TestToken)
 	router.POST("/friend/MakeFriendById", service.MakeFriendById)
 	router.GET("/ws", service.HandleWebSocket)

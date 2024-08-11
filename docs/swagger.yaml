@@ -1,6 +1,20 @@
 info:
   contact: {}
 paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: index
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Index
   /friend/MakeFriendById:
     post:
       consumes:
@@ -26,20 +40,6 @@ paths:
             type: string
       tags:
       - Friend
-  /index:
-    get:
-      consumes:
-      - application/json
-      description: index
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      tags:
-      - Index
   /user/CreateUser:
     post:
       consumes:
@@ -77,12 +77,12 @@ paths:
       description: login
       parameters:
       - description: 账号
-        in: query
+        in: formData
         name: identity
         required: true
         type: string
       - description: 密码
-        in: query
+        in: formData
         name: password
         required: true
         type: string

@@ -15,6 +15,28 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/": {
+            "get": {
+                "description": "index",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Index"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/friend/MakeFriendById": {
             "post": {
                 "description": "send application(make frind)",
@@ -42,28 +64,6 @@ const docTemplate = `{
                         "in": "query",
                         "required": true
                     }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/index": {
-            "get": {
-                "description": "index",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Index"
                 ],
                 "responses": {
                     "200": {
@@ -137,14 +137,14 @@ const docTemplate = `{
                         "type": "string",
                         "description": "账号",
                         "name": "identity",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "密码",
                         "name": "password",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
                     }
                 ],

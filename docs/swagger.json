@@ -4,6 +4,28 @@
         "contact": {}
     },
     "paths": {
+        "/": {
+            "get": {
+                "description": "index",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Index"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/friend/MakeFriendById": {
             "post": {
                 "description": "send application(make frind)",
@@ -31,28 +53,6 @@
                         "in": "query",
                         "required": true
                     }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/index": {
-            "get": {
-                "description": "index",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Index"
                 ],
                 "responses": {
                     "200": {
@@ -126,14 +126,14 @@
                         "type": "string",
                         "description": "账号",
                         "name": "identity",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "密码",
                         "name": "password",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
                     }
                 ],

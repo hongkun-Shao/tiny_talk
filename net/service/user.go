@@ -26,9 +26,9 @@ import (
 // @Router /user/CreateUser [post]
 func CreateUser(c *gin.Context) {
 	var user models.UserBasic
-	user.Name = c.Query("name")
-	user.Password = c.Query("password")
-	repassword := c.Query("repassword")
+	user.Name = c.PostForm("username")
+	user.Password = c.PostForm("password")
+	repassword := c.PostForm("repassword")
 	logger.Infof("%v, %v, %v", user.Name, user.Password, repassword)
 	if user.Password != repassword {
 		c.JSON(400, gin.H{"error": "Password and Repassword must be the same"})
@@ -62,16 +62,16 @@ func CreateUser(c *gin.Context) {
 
 // @Description login
 // @Tags User
-// @Param identity query string true "账号"
-// @Param password query string true "密码"
+// @Param identity formData string true "账号"
+// @Param password formData string true "密码"
 // @Accept json
 // @Produce json
 // @Success 200 {string} create user
 // @Router /user/Login [post]
-func Login(c *gin.Context) {
+func UserLogin(c *gin.Context) {
 	var user models.UserBasic
-	identity, err := strconv.ParseInt(c.Query("identity"), 10, 64)
-	password := c.Query("password")
+	identity, err := strconv.ParseInt(c.PostForm("userid"), 10, 64)
+	password := c.PostForm("password")
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Identity must be a number"})
 		logger.Errorf("Identity must be a number: %v", err)
@@ -101,6 +101,7 @@ func Login(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "Login successfully",
 		"token":   token,
+		// "redirect": "webui/dashboard",
 	})
 	logger.Infof("Login successfully: id %v, token %v", user.Identity, token)
 }

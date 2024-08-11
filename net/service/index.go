@@ -7,9 +7,15 @@ import "github.com/gin-gonic/gin"
 // @Accept json
 // @Produce json
 // @Success 200 {string} welcome
-// @Router /index [get]
+// @Router / [get]
 func GetIndex(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "welcome",
-	})
+	c.File("webui/index.html")
+}
+
+func Register(c *gin.Context) {
+	c.File("webui/register.html")
+}
+
+func Home(c *gin.Context) {
+	c.File("webui/home.html")
 }

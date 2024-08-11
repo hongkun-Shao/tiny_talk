@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        form {
+            background-color: white;
+            padding: 50px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            padding: 50px 200px;
+            border-radius: 5px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        input[type="text"]{
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 16px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .register-link a {
+            color: #007BFF;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+
+            loginForm.addEventListener('submit', function (event) {
+                event.preventDefault(); // 阻止表单默认提交行为
+
+                const userid = document.getElementById('userid').value;
+                const password = document.getElementById('password').value;
+
+                const formData = new FormData();
+                formData.append('userid', userid);
+                formData.append('password', password);
+
+                fetch('/user/Login', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Login successfully') {
+                        // 登录成功，保存 token 并跳转到首页
+                        localStorage.setItem('token', data.token);
+                        window.location.href = '/home'; // 假设首页的 URL 是 /home
+                    } else {
+                        // 登录失败，显示错误消息
+                        alert('Login failed: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred during login.');
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="login-container">
+        <form id="loginForm">
+            <h1>Welcome to talk</h1>
+            <label for="userid">UserId:</label>
+            <input type="text" id="userid" name="userid" required>
+            <label for="password">Password:</label>
+            <input type="text" id="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div class="register-link">
+            <a href="/Register">Register here</a>
+        </div>
+    </div>
+</body>
+</html>
