@@ -1,6 +1,31 @@
 info:
   contact: {}
 paths:
+  /friend/MakeFriendById:
+    post:
+      consumes:
+      - application/json
+      description: send application(make frind)
+      parameters:
+      - description: 对方账号
+        in: query
+        name: friend_id
+        required: true
+        type: string
+      - description: 密令
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Friend
   /index:
     get:
       consumes:

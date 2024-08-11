@@ -124,7 +124,7 @@ func TestToken(c *gin.Context) {
 		return
 	}
 	logger.Infof("TestToken: id %v, token %v", id, token)
-	token, err = refeshTokenExpiration(token)
+	token, err = RefeshTokenExpiration(token)
 	if err != nil {
 		logger.Errorf("Token refresh expiration failed %v", err)
 	}
@@ -132,7 +132,6 @@ func TestToken(c *gin.Context) {
 		"message": "Token is valid",
 		"token":   token,
 	})
-
 }
 
 func storeTokenInRedis(token string, identity int64) error {
@@ -144,12 +143,13 @@ func storeTokenInRedis(token string, identity int64) error {
 	}
 	now := time.Now().UnixMilli()
 	// 存储 token 的创建时间, 存活24 + 3 + 1 hours, 用来检测 token 是否 超过 最长存活时间
-	err = redis.Set(&ctx, fmt.Sprintf("created:%s", token), now, 28*time.Hour).Err()
+	err = redis.Set(&ctx, fmt.Sprintf("created:%s", token), now, 3*time.Hour).Err()
 	if err != nil {
 		return errors.New("failed to store token created time in Redis")
 	}
 	return nil
 }
+
 func deleteTokenFromRedis(token string) error {
 	ctx := context.Background()
 	err := redis.Del(&ctx, token).Err()
@@ -162,6 +162,7 @@ func deleteTokenFromRedis(token string) error {
 	}
 	return nil
 }
+
 func GetUserIdFromRedisByToken(token string) (int64, error) {
 	ctx := context.Background()
 	val, err := redis.Get(&ctx, token).Result()
@@ -171,17 +172,18 @@ func GetUserIdFromRedisByToken(token string) (int64, error) {
 	id, _ := strconv.ParseInt(val, 10, 64)
 	return id, nil
 }
+
 func getTokenCreatedTImeFromRedisByToken(token string) (int64, error) {
 	ctx := context.Background()
 	val, err := redis.Get(&ctx, fmt.Sprintf("created:%s", token)).Result()
 	if err != nil {
 		return 0, err
 	}
-	id, _ := strconv.ParseInt(val, 10, 64)
-	return id, nil
+	created_time, _ := strconv.ParseInt(val, 10, 64)
+	return created_time, nil
 }
 
-func refeshTokenExpiration(token string) (string, error) {
+func RefeshTokenExpiration(token string) (string, error) {
 	ctx := context.Background()
 	err := redis.Expire(&ctx, token, 3*time.Hour).Err()
 	if err != nil {

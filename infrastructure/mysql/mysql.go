@@ -30,8 +30,8 @@ func NewDBClient(dsn string) error {
 		logger.Errorf("failed to connect database, err = %v", err)
 		return err
 	}
-	if err := dbhandle.AutoMigrate(&models.UserBasic{}); err != nil {
-		logger.Errorf("failed to migrate databaseerr = %v", err)
+	if err := dbhandle.AutoMigrate(&models.UserBasic{}, &models.FriendBasic{}); err != nil {
+		logger.Errorf("failed to migrate database, err = %v", err)
 		return err
 	}
 	MysqlClient = &DBClient{
