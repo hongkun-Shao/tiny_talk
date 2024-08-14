@@ -1,18 +1,14 @@
-package mysql
+package db
 
 import (
-	"tiny_talk/infrastructure/mysql/models"
+	"tiny_talk/infrastructure/models"
 	"tiny_talk/utils/logger"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-type DBClient struct {
-	dbhandle *gorm.DB
-}
-
-var MysqlClient *DBClient
+var MysqlClient *gorm.DB
 
 func NewDBClient(dsn string) error {
 	dbhandle, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
@@ -34,36 +30,6 @@ func NewDBClient(dsn string) error {
 		logger.Errorf("failed to migrate database, err = %v", err)
 		return err
 	}
-	MysqlClient = &DBClient{
-		dbhandle: dbhandle,
-	}
+	MysqlClient = dbhandle
 	return nil
-}
-
-type ModelInterface interface {
-	TableName() string
-}
-
-type ModelCRUD interface {
-	ModelInterface
-	Create(db *gorm.DB) error
-	Update(db *gorm.DB) error
-	Find(db *gorm.DB) error
-	Delete(db *gorm.DB) error
-}
-
-func CreateModel(model ModelCRUD) error {
-	return model.Create(MysqlClient.dbhandle)
-}
-
-func UpdateModel(model ModelCRUD) error {
-	return model.Update(MysqlClient.dbhandle)
-}
-
-func FindModel(model ModelCRUD) error {
-	return model.Find(MysqlClient.dbhandle)
-}
-
-func DeleteModel(model ModelCRUD) error {
-	return model.Delete(MysqlClient.dbhandle)
 }

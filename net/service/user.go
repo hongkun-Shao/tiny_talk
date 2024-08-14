@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-	"tiny_talk/infrastructure/mysql"
-	"tiny_talk/infrastructure/mysql/models"
-	"tiny_talk/infrastructure/redis"
+
+	"tiny_talk/infrastructure/crud"
+	"tiny_talk/infrastructure/db"
+	"tiny_talk/infrastructure/models"
 	"tiny_talk/utils"
 	"tiny_talk/utils/logger"
 
@@ -45,7 +46,7 @@ func CreateUser(c *gin.Context) {
 	user.Password = hashedPassword
 	user.Identity = utils.GenerateSnowflakeID()
 
-	err = mysql.CreateModel(&user)
+	err = crud.UserCRUD.Create(&user)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Failed to create user"})
 		logger.Errorf("Failed to create user: %v", err)
@@ -69,7 +70,7 @@ func CreateUser(c *gin.Context) {
 // @Success 200 {string} create user
 // @Router /user/Login [post]
 func UserLogin(c *gin.Context) {
-	var user models.UserBasic
+	var user *models.UserBasic
 	identity, err := strconv.ParseInt(c.PostForm("userid"), 10, 64)
 	password := c.PostForm("password")
 	if err != nil {
@@ -77,8 +78,8 @@ func UserLogin(c *gin.Context) {
 		logger.Errorf("Identity must be a number: %v", err)
 		return
 	}
-	user.Identity = identity
-	mysql.FindModel(&user)
+	user, err = crud.UserCRUD.Get(identity)
+
 	res := utils.CheckPassword(user.Password, password)
 	if !res {
 		c.JSON(400, gin.H{"error": "Password is incorrect"})
@@ -97,6 +98,7 @@ func UserLogin(c *gin.Context) {
 	} else {
 		logger.Errorf("Login generate token failed %v", err)
 	}
+	// TODO : store user in redis
 
 	c.JSON(200, gin.H{
 		"message": "Login successfully",
@@ -138,13 +140,13 @@ func TestToken(c *gin.Context) {
 func storeTokenInRedis(token string, identity int64) error {
 	// 设置 token 的过期时间, 存活时间 3 hours, 但是最长存活时间 24 hours
 	ctx := context.Background()
-	err := redis.Set(&ctx, token, identity, 3*time.Hour).Err()
+	err := db.Set(&ctx, token, identity, 3*time.Hour).Err()
 	if err != nil {
 		return errors.New("failed to store token in Redis")
 	}
 	now := time.Now().UnixMilli()
 	// 存储 token 的创建时间, 存活24 + 3 + 1 hours, 用来检测 token 是否 超过 最长存活时间
-	err = redis.Set(&ctx, fmt.Sprintf("created:%s", token), now, 3*time.Hour).Err()
+	err = db.Set(&ctx, fmt.Sprintf("created:%s", token), now, 3*time.Hour).Err()
 	if err != nil {
 		return errors.New("failed to store token created time in Redis")
 	}
@@ -153,11 +155,11 @@ func storeTokenInRedis(token string, identity int64) error {
 
 func deleteTokenFromRedis(token string) error {
 	ctx := context.Background()
-	err := redis.Del(&ctx, token).Err()
+	err := db.Del(&ctx, token).Err()
 	if err != nil {
 		return errors.New("failed to delete token in Redis")
 	}
-	err = redis.Del(&ctx, fmt.Sprintf("created:%s", token)).Err()
+	err = db.Del(&ctx, fmt.Sprintf("created:%s", token)).Err()
 	if err != nil {
 		return errors.New("failed to delete token created time in Redis")
 	}
@@ -166,7 +168,7 @@ func deleteTokenFromRedis(token string) error {
 
 func GetUserIdFromRedisByToken(token string) (int64, error) {
 	ctx := context.Background()
-	val, err := redis.Get(&ctx, token).Result()
+	val, err := db.Get(&ctx, token).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -176,7 +178,7 @@ func GetUserIdFromRedisByToken(token string) (int64, error) {
 
 func getTokenCreatedTImeFromRedisByToken(token string) (int64, error) {
 	ctx := context.Background()
-	val, err := redis.Get(&ctx, fmt.Sprintf("created:%s", token)).Result()
+	val, err := db.Get(&ctx, fmt.Sprintf("created:%s", token)).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -186,7 +188,7 @@ func getTokenCreatedTImeFromRedisByToken(token string) (int64, error) {
 
 func RefeshTokenExpiration(token string) (string, error) {
 	ctx := context.Background()
-	err := redis.Expire(&ctx, token, 3*time.Hour).Err()
+	err := db.Expire(&ctx, token, 3*time.Hour).Err()
 	if err != nil {
 		return token, err
 	}

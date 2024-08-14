@@ -3,6 +3,8 @@ package service
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"sync"
 	"tiny_talk/utils/logger"
 
 	"github.com/gin-gonic/gin"
@@ -25,10 +27,21 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// TokenResponse 结构体用于封装新的 Token
-type TokenResponse struct {
-	Type  string `json:"type"`
-	Token string `json:"token"`
+type UserConn struct {
+	ID      int64
+	Channel chan string
+	WsConn  *websocket.Conn
+}
+
+type WsConnHub struct {
+	Connections map[int64]*UserConn
+	Locker      sync.RWMutex
+	// redis
+}
+
+var OnlineUsers = WsConnHub{
+	Connections: make(map[int64]*UserConn),
+	Locker:      sync.RWMutex{},
 }
 
 func HandleWebSocket(c *gin.Context) {
@@ -40,50 +53,84 @@ func HandleWebSocket(c *gin.Context) {
 		logger.Errorf("websocket failed to get user id error: %v", err)
 		return
 	}
-	logger.Infof("websocket user id: %v", id)
-	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		logger.Errorf("websocket failed to upgrade error: %v", err)
 		return
 	}
-	defer ws.Close()
+	defer conn.Close()
+
+	userConn := &UserConn{
+		ID:      id,
+		Channel: make(chan string),
+		WsConn:  conn,
+	}
+
+	OnlineUsers.Locker.Lock()
+	OnlineUsers.Connections[id] = userConn
+	OnlineUsers.Locker.Unlock()
+	logger.Infof("websocket user id: %v", id)
+
+	var wg sync.WaitGroup
+
+	// 启动读写 goroutines
+	wg.Add(2)
+	go readLoop(userConn)
+	go writeLoop(userConn)
+
+	// 等待所有 goroutines 完成
+	wg.Wait()
+
+	defer func() {
+		OnlineUsers.Locker.Lock()
+		delete(OnlineUsers.Connections, id)
+		OnlineUsers.Locker.Unlock()
+		close(userConn.Channel)
+		logger.Infof("websocket user close connection: %v", id)
+	}()
+}
+
+// 从WebSocket读取消息
+func readLoop(userConn *UserConn) {
 	for {
-		_, message, err := ws.ReadMessage()
+		_, msg, err := userConn.WsConn.ReadMessage()
 		if err != nil {
-			logger.Errorf("websocket failed to read message error: %v", err)
+			logger.Infof("websocket read error: %v", err)
 			break
 		}
-		new_token, err := RefeshTokenExpiration(current_token)
+		var message Message
+		err = json.Unmarshal(msg, &message)
 		if err != nil {
-			logger.Errorf("websocket failed to refresh token expiration error: %v", err)
+			logger.Infof("websocket unmarshal error: %v", err)
 			break
 		}
+		targetID, _ := strconv.ParseInt(message.ReceiverID, 10, 64)
 
-		if current_token != new_token {
-			logger.Infof("websocket token expired, refresh token: %v", new_token)
-			current_token = new_token
+		logger.Infof("websocket read message: %v", message)
+		routeMessage(targetID, string(msg))
+	}
+}
 
-			tokenResp := TokenResponse{
-				Type:  "new_token",
-				Token: new_token,
-			}
-			tokenJSON, err := json.Marshal(tokenResp)
-			if err != nil {
-				logger.Infof("Error marshaling token response: %v", err)
-				continue
-			}
+// 将消息路由到目标用户
+func routeMessage(targetID int64, message string) {
+	OnlineUsers.Locker.RLock()
+	targetUser, ok := OnlineUsers.Connections[targetID]
+	OnlineUsers.Locker.RUnlock()
+	if ok {
+		targetUser.Channel <- message
+	} else {
+		logger.Infof("websocket target user offline: %v", targetID)
+		// 用户不在线，处理逻辑
+	}
+}
 
-			err = ws.WriteMessage(websocket.TextMessage, tokenJSON)
-			if err != nil {
-				logger.Errorf("Error writing token message: %v, error: %v", message, err)
-				break
-			}
-		}
-
-		err = ws.WriteMessage(websocket.TextMessage, message)
+// 将消息写入WebSocket连接
+func writeLoop(userConn *UserConn) {
+	for msg := range userConn.Channel {
+		err := userConn.WsConn.WriteMessage(websocket.TextMessage, []byte(msg))
 		if err != nil {
-			logger.Errorf("websocket failed to write message %v error: %v", message, err)
+			logger.Infof("websocket write error: %v", err)
 			break
 		}
 	}

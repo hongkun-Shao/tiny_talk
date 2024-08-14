@@ -22,23 +22,3 @@ type UserBasic struct {
 	HeartbeatTime *time.Time `gorm:"type:datetime;"`
 	IsLogOut      bool       `gorm:"type:tinyint(4);not null"`
 }
-
-func (table *UserBasic) TableName() string {
-	return "user_basic"
-}
-
-func (table *UserBasic) Create(db *gorm.DB) error {
-	return db.Create(table).Error
-}
-
-func (table *UserBasic) Update(db *gorm.DB) error {
-	return db.Where("identity = ?", table.Identity).Updates(table).Error
-}
-
-func (table *UserBasic) Find(db *gorm.DB) error {
-	return db.Where("identity = ?", table.Identity).First(table).Error
-}
-
-func (table *UserBasic) Delete(db *gorm.DB) error {
-	return db.Where("identity = ? AND deleted_at IS NULL", table.Identity).Delete(table).Error
-}

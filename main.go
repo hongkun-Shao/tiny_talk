@@ -3,8 +3,7 @@ package main
 import (
 	"context"
 	"log"
-	"tiny_talk/infrastructure/mysql"
-	"tiny_talk/infrastructure/redis"
+	"tiny_talk/infrastructure/db"
 	"tiny_talk/net/router"
 	"tiny_talk/utils"
 	"tiny_talk/utils/config"
@@ -30,14 +29,14 @@ func main() {
 	// DBClient 初始化
 	dsn := utils.ParseToDsn(&appConfig.Mysql)
 	logger.Infof("dsn = %v", dsn)
-	err = mysql.NewDBClient(dsn)
+	err = db.NewDBClient(dsn)
 	if err != nil {
 		logger.Panicf("failed to init mysql, err = %v", err)
 	}
 	logger.Info("init mysql success")
 
 	// RDBClient 初始化
-	err = redis.NewRedisClient(&ctx, &appConfig.Redis)
+	err = db.NewRedisClient(&ctx, &appConfig.Redis)
 	if err != nil {
 		logger.Panicf("failed to init redis, err = %v", err)
 	}
