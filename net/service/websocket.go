@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"time"
+	"tiny_talk/infrastructure/crud"
+	"tiny_talk/infrastructure/models"
 	"tiny_talk/utils/logger"
 
 	"github.com/gin-gonic/gin"
@@ -94,21 +97,37 @@ func HandleWebSocket(c *gin.Context) {
 // 从WebSocket读取消息
 func readLoop(userConn *UserConn) {
 	for {
+		current_time := time.Now()
 		_, msg, err := userConn.WsConn.ReadMessage()
 		if err != nil {
 			logger.Infof("websocket read error: %v", err)
 			break
 		}
+		logger.Infof("websocket read message: %v", string(msg))
 		var message Message
 		err = json.Unmarshal(msg, &message)
 		if err != nil {
 			logger.Infof("websocket unmarshal error: %v", err)
 			break
 		}
-		targetID, _ := strconv.ParseInt(message.ReceiverID, 10, 64)
+		destId, _ := strconv.ParseInt(message.ReceiverID, 10, 64)
 
 		logger.Infof("websocket read message: %v", message)
-		routeMessage(targetID, string(msg))
+		err = crud.MessageCRUD.Create(&models.MessageBasic{
+			UserId:   userConn.ID,
+			DestId:   destId,
+			Content:  message.Content,
+			Type:     message.Type,
+			SeqNum:   0,
+			Status:   0,
+			SendTime: &current_time,
+		})
+		if err != nil {
+			logger.Infof("websocket stroe message error: %v", err)
+			break
+		}
+		logger.Infof("websocket stroe message success: %v", message)
+		routeMessage(destId, string(msg))
 	}
 }
 

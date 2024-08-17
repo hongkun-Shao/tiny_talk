@@ -17,6 +17,7 @@ func Router() *gin.Engine {
 	router.GET("/", service.GetIndex)
 	router.GET("/Register", service.Register)
 	router.GET("/home", service.Home)
+
 	// 静态资源
 	router.Static("/static", "/root/tiny_talk/webui")
 

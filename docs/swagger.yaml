@@ -77,14 +77,13 @@ paths:
       description: login
       parameters:
       - description: 账号
-        in: formData
+        in: query
         name: identity
         required: true
         type: string
       - description: 密码
-        in: formData
+        in: query
         name: password
-        required: true
         type: string
       produces:
       - application/json

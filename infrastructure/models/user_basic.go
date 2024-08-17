@@ -22,3 +22,7 @@ type UserBasic struct {
 	HeartbeatTime *time.Time `gorm:"type:datetime;"`
 	IsLogOut      bool       `gorm:"type:tinyint(4);not null"`
 }
+
+func (table *UserBasic) TableName() string {
+	return "user_basic"
+}

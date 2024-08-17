@@ -26,7 +26,10 @@ func NewDBClient(dsn string) error {
 		logger.Errorf("failed to connect database, err = %v", err)
 		return err
 	}
-	if err := dbhandle.AutoMigrate(&models.UserBasic{}, &models.FriendBasic{}); err != nil {
+	if err := dbhandle.AutoMigrate(
+		&models.UserBasic{},
+		&models.FriendBasic{},
+		&models.MessageBasic{}); err != nil {
 		logger.Errorf("failed to migrate database, err = %v", err)
 		return err
 	}

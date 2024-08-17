@@ -137,15 +137,14 @@ const docTemplate = `{
                         "type": "string",
                         "description": "账号",
                         "name": "identity",
-                        "in": "formData",
+                        "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "密码",
                         "name": "password",
-                        "in": "formData",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {

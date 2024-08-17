@@ -82,10 +82,6 @@ func generaterJsonFormatter() *logrus.JSONFormatter {
 	}
 }
 
-// Loggers.loggers[AppName].WithFields(logrus.Fields{})
-// 可以添加自定义字段
-// 后续可以改成一个函数
-
 func Debugf(format string, args ...interface{}) {
 	Loggers.loggers[AppName].WithFields(logrus.Fields{}).Debugf(format, args...)
 }
