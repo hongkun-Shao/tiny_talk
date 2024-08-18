@@ -46,3 +46,15 @@ func Get(ctx *context.Context, key string) *redis.StringCmd {
 func Expire(ctx *context.Context, key string, expiration time.Duration) *redis.BoolCmd {
 	return RedisClient.redishandle.Expire(*ctx, key, expiration)
 }
+
+func Push(ctx *context.Context, key string, value interface{}) *redis.IntCmd {
+	return RedisClient.redishandle.RPush(context.Background(), key, value)
+}
+
+func Pop(ctx *context.Context, timeout time.Duration, keys ...string) *redis.StringSliceCmd {
+	return RedisClient.redishandle.BLPop(context.Background(), timeout, keys...)
+}
+
+func Len(ctx *context.Context, key string) *redis.IntCmd {
+	return RedisClient.redishandle.LLen(context.Background(), key)
+}

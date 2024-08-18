@@ -1,7 +1,6 @@
 package service
 
 import (
-	"strconv"
 	"tiny_talk/infrastructure/crud"
 	"tiny_talk/infrastructure/models"
 	"tiny_talk/utils/logger"
@@ -9,50 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Description send application(make frind)
-// @Tags Friend
-// @Param friend_id query string true "对方账号"
-// @Param token query string true "密令"
-// @Accept json
-// @Produce json
-// @Success 200 {string} send application success
-// @Router /friend/MakeFriendById [post]
-func MakeFriendById(c *gin.Context) {
+func makeFriendById(user_id int64, friend_id int64) bool {
 	var contact models.FriendBasic
-	friend_id, err := strconv.ParseInt(c.Query("friend_id"), 10, 64)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"error":   "Invalid friend_id",
-			"message": "Please provide a valid friend_id",
-		})
-	}
-	token := c.Query("token")
-
-	user_id, err := GetUserIdFromRedisByToken(token)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"error":   "Token is invalid",
-			"message": "Please login again",
-		})
-		logger.Errorf("Token is invalid not fount in redis")
-		return
-	}
 
 	if friend_id == user_id {
-		c.JSON(400, gin.H{
-			"error":   "Invalid friend_id",
-			"message": "You can't make friend with yourself",
-		})
-		return
+		logger.Infof("user %v want to make friend with himself", user_id)
+		return false
 	}
 
-	_, err = crud.UserCRUD.Get(friend_id)
+	_, err := crud.UserCRUD.Get(friend_id)
 
 	if err != nil {
-		c.JSON(400, gin.H{
-			"error":   "friend not exist",
-			"message": "Please provide a valid friend_id",
-		})
+		logger.Errorf("Friend not exist%v", friend_id)
+		return false
 	}
 
 	contact.UserId = user_id
@@ -60,15 +28,12 @@ func MakeFriendById(c *gin.Context) {
 	contact.Status = 1
 	err = crud.FriendCRUD.Create(&contact)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "failed to send application"})
 		logger.Errorf("Failed to create friend contact: %v", err)
-		return
+		return false
 	}
 
-	c.JSON(200, gin.H{
-		"message": "Application has been sent",
-	})
 	logger.Infof("user %v want to make friend with user %v", user_id, friend_id)
+	return true
 }
 
 func GetFriendList(c *gin.Context) {
